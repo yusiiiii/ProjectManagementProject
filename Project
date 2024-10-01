@@ -1,0 +1,283 @@
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Scanner;
+import java.text.SimpleDateFormat;
+import java.text.ParseException;
+
+class Product {
+    public String productId;
+    public String productName;
+    public double Price;
+    public Date dateEntered;
+
+    public Product(String id, String name, double price, Date entered) {
+        productId = id;
+        productName = name;
+        Price = price;
+        dateEntered = entered;
+    }
+
+    public String getProductId() {
+        return productId;
+    }
+
+    public String getProductName() {
+        return productName;
+    }
+
+    public double getPrice() {
+        return Price; 
+    }
+
+    public Date getDateEntered() {
+        return dateEntered;
+    }
+
+    public void setProductName(String name) {
+        productName = name;
+    }
+
+    public void setPrice(double price) {
+        Price = price; 
+    }
+
+    @Override
+    public String toString() {
+        return String.format("Product ID: %s, Name: %s, Price: %.2f, Date Entered: %s", 
+                productId, productName, Price, dateEntered);
+    }
+}
+
+class Perishables extends Product {
+    public Date dateExpiry;
+
+    public Perishables(String id, String name, double price, Date entered, Date expiry) {
+        super(id, name, price, entered);
+        dateExpiry = expiry;
+    }
+
+    public Date getDateExpiry() {
+        return dateExpiry;
+    }
+
+    public void setDateExpiry(Date expiry) {
+        dateExpiry = expiry;
+    }
+
+    @Override
+    public String toString() {
+        return super.toString() + String.format(", Date Expiry: %s", dateExpiry);
+    }
+}
+
+class Electronics extends Product {
+    public String warrantyPeriod;
+
+    public Electronics(String id, String name, double price, Date entered, String warranty) {
+        super(id, name, price, entered);
+        warrantyPeriod = warranty;
+    }
+
+    public String getWarrantyPeriod() {
+        return warrantyPeriod;
+    }
+
+    public void setWarrantyPeriod(String warranty) {
+        warrantyPeriod = warranty;
+    }
+
+    @Override
+    public String toString() {
+        return super.toString() + String.format(", Warranty: %s", warrantyPeriod);
+    }
+}
+
+class Clothing extends Product {
+    public String size;
+
+    public Clothing(String id, String name, double price, Date entered, String size) {
+        super(id, name, price, entered);
+        this.size = size;
+    }
+
+    public String getSize() {
+        return size;
+    }
+
+    public void setSize(String size) {
+        this.size = size;
+    }
+
+    @Override
+    public String toString() {
+        return super.toString() + String.format(", Size: %s", size);
+    }
+}
+
+class Skincare extends Product {
+    public String skinType;
+
+    public Skincare(String id, String name, double price, Date entered, String skin) {
+        super(id, name, price, entered);
+        this.skinType = skin;
+    }
+
+    public String getSkinType() {
+        return skinType;
+    }
+
+    public void setSkinType(String skin) {
+        this.skinType = skin;
+    }
+
+    @Override
+    public String toString() {
+        return super.toString() + String.format(", Skin Type: %s", skinType);
+    }
+}
+
+class ProductManagement {
+    private List<Product> products;
+
+    public ProductManagement() {
+        products = new ArrayList<>();
+    }
+
+    public void addProduct(Product product) {
+        products.add(product);
+        System.out.println("Product added: " + product);
+    }
+
+    public void updateProduct(String id, String name, double price, Date expiry) {
+        for (Product product : products) {
+            if (product.getProductId().equals(id)) {
+                product.setProductName(name);
+                product.setPrice(price);
+                if (product instanceof Perishables) {
+                    ((Perishables) product).setDateExpiry(expiry);
+                }
+                System.out.println("Product updated: " + product);
+                return;
+            }
+        }
+        System.out.println("Product not found");
+    }
+
+    public void deleteProduct(String id) {
+        Product product = null;
+        for (Product p : products) {
+            if (p.getProductId().equals(id)) {
+                product = p;
+                break;
+            }
+        }
+        if (product != null) {
+            products.remove(product);
+            System.out.println("Product deleted: " + product);
+        } else {
+            System.out.println("Product not found");
+        }
+    }
+
+    public void listProducts() {
+        for (Product product : products) {
+            System.out.println(product);
+        }
+    }
+}
+
+public class MainApp {
+    public static void main(String[] args) {
+        ProductManagement manager = new ProductManagement();
+        Scanner scanner = new Scanner(System.in);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
+        while (true) {
+            System.out.println("Choose an action: 1-Add, 2-Update, 3-Delete, 4-List, 5-Exit");
+            int choice = scanner.nextInt();
+            scanner.nextLine(); 
+
+            switch (choice) {
+                case 1:
+                    System.out.print("Enter Product Type (Perishables/Electronics/Clothing/Skincare): ");
+                    String type = scanner.nextLine();
+                    System.out.print("Enter Product ID: ");
+                    String id = scanner.nextLine();
+                    System.out.print("Enter Product Name: ");
+                    String name = scanner.nextLine();
+                    System.out.print("Enter Price: ");
+                    double price = scanner.nextDouble();
+                    System.out.print("Enter Date Entered (yyyy-mm-dd): ");
+                    String enteredDateStr = scanner.next();
+                    Date dateEntered;
+                    try {
+                        dateEntered = sdf.parse(enteredDateStr);
+                    } catch (ParseException e) {
+                        System.out.println("Invalid format, use yyyy-mm-dd format.");
+                        continue;
+                    }
+                    Date dateExpiry = null;
+
+                    if (type.equalsIgnoreCase("Perishables")) {
+                        System.out.print("Enter Date Expiry (yyyy-mm-dd): ");
+                        String expiryDateStr = scanner.next();
+                        try {
+                            dateExpiry = sdf.parse(expiryDateStr);
+                        } catch (ParseException e) {
+                            System.out.println("Invalid format, use yyyy-mm-dd format.");
+                            continue;
+                        }
+                        Perishables perishables = new Perishables(id, name, price, dateEntered, dateExpiry);
+                        manager.addProduct(perishables);
+                    } else if (type.equalsIgnoreCase("Electronics")) {
+                        System.out.print("Enter Warranty Period: ");
+                        String warranty = scanner.nextLine();
+                        Electronics electronics = new Electronics(id, name, price, dateEntered, warranty);
+                        manager.addProduct(electronics);
+                    } else if (type.equalsIgnoreCase("Clothing")) {
+                        System.out.print("Enter Size: ");
+                        String size = scanner.nextLine();
+                        Clothing clothing = new Clothing(id, name, price, dateEntered, size);
+                        manager.addProduct(clothing);
+                    } else if (type.equalsIgnoreCase("Skincare")) {
+                        System.out.print("Enter Skin Type: ");
+                        String skinType = scanner.nextLine();
+                        Skincare skincare = new Skincare(id, name, price, dateEntered, skinType);
+                        manager.addProduct(skincare);
+                    } else {
+                        System.out.println("Invalid type of product!");
+                    }
+                    break;
+
+                case 2:
+                    System.out.print("Enter Product ID to update: ");
+                    String updateId = scanner.nextLine();
+                    System.out.print("Enter new Product Name: ");
+                    String updateName = scanner.nextLine();
+                    System.out.print("Enter new Product Price: ");
+                    double updatePrice = scanner.nextDouble();
+                    manager.updateProduct(updateId, updateName, updatePrice, new Date());
+                    break;
+
+                case 3:
+                    System.out.print("Enter Product ID to delete product: ");
+                    String deleteId = scanner.nextLine();
+                    manager.deleteProduct(deleteId);
+                    break;
+
+                case 4:
+                    manager.listProducts();
+                    break;
+
+                case 5:
+                    System.out.println("Closing program");
+                    scanner.close();
+                    return;
+
+                default:
+                    System.out.println("Invalid option! Please choose again.");
+            }
+        }
+    }
+}
